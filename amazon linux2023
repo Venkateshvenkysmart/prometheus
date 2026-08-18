@@ -1,0 +1,47 @@
+#create its own namespace
+
+kubectl create namespace prometheus
+
+vi prometheus.sh
+
+wget https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz
+tar -xf prometheus-2.53.0.linux-amd64.tar.gz
+sudo mkdir -p /etc/prometheus /var/lib/prometheus
+sudo mv prometheus-2.53.0.linux-amd64/prometheus /usr/local/bin
+sudo mv prometheus-2.53.0.linux-amd64/promtool /usr/local/bin
+sudo mv prometheus-2.53.0.linux-amd64/consoles /etc/prometheus
+sudo mv prometheus-2.53.0.linux-amd64/console_libraries /etc/prometheus
+sudo mv prometheus-2.53.0.linux-amd64/prometheus.yml /etc/prometheus
+rm -rv prometheus-2.53.0.linux-amd64*
+sudo useradd -rs /bin/false prometheus
+sudo chown -R prometheus:prometheus /etc/prometheus /var/lib/prometheus /usr/local/bin/prometheus /usr/local/bin/promtool
+
+sudo cat <<EOF | sudo tee /etc/systemd/system/prometheus.service
+[Unit]
+Description=Prometheus
+After=network.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries \
+  --web.listen-address=0.0.0.0:9090
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo cat /etc/systemd/system/prometheus.service
+sudo systemctl daemon-reload && sudo systemctl enable prometheus
+sudo systemctl start prometheus.service && sudo systemctl status prometheus.service --no-pager
+
+sh prometheus.sh
+
+after installation
+
+copy&paste ec2-pubip:9090 in browser
