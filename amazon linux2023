@@ -38,7 +38,7 @@ sudo systemctl start prometheus.service && sudo systemctl status prometheus.serv
 
 sh prometheus.sh
 
-after installation
+#after installation
 
 copy&paste ec2-pubip:9090 in browser
 
