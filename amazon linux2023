@@ -42,4 +42,4 @@ after installation
 
 copy&paste ec2-pubip:9090 in browser
 
-#allow port in ec2 security group
+#check port in ec2 security group, if not working
